@@ -1,0 +1,50 @@
+{
+    "config": {
+        "wifi-ssid": {
+            "help": "WiFi SSID",
+            "value": "\"TP-Link_5FF8\""
+        },
+        "wifi-password": {
+            "help": "WiFi Password",
+            "value": "\"70094510\""
+        },
+        "esp-rx-pin": {
+            "help": "ESP8266 module Tx pin, Mc Rx PB_7 or PA_10",
+            "value": "PA_10"
+        },
+        "esp-tx-pin": {
+            "help": "ESP8266 module Rx pin, Mc Tx PB_6 or PA_9",
+            "value": "PA_9"
+        },
+        "mqtt-broker-hostname": {
+            "help": "MQTT Broker resolvable hostname, for IBM Cloud. <org-id>.messaging.internetofthings.ibmcloud.com",
+            "value": "\"test.mosquitto.org\""
+        },
+        "mqtt-broker-port": {
+            "help": "MQTT Broker port",
+            "value": "1883"
+        },
+        "mqtt-client-id":{
+            "help": "MQTT client name, for IBM Cloud. d:<org-id>:<device-type>:<device-id>",
+            "value": "\"mikasdad2maa\""
+        },
+        "mqtt-auth-method":{
+            "help": "use-token-auth",
+            "value": "\"use-token-auth\""
+        },
+        "mqtt-auth-token":{
+            "help": "Authentication Token for the Device ID",
+            "value": "\"AAAAAAAAAAAAAAAAAAA\""
+        }, 
+        "mqtt-topic": {
+            "help": "MQTT topic to publish. IBM cloud topic must be like iot-2/evt/<user-defined-event-name>/fmt/<json|txt|xml|csv>. More info at https://www.ibm.com/support/knowledgecenter/SSQP8H/iot/platform/devices/mqtt.html",
+            "value": "\"kekeboi\""
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "platform.stdio-convert-newlines": true,
+            "esp8266.provide-default" : false
+        }
+    }
+}
