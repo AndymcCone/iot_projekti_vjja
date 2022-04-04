@@ -117,7 +117,6 @@ int main()
     MQTTClient client(&socket);
 
     char buffer[128];
-    int payloadValue = 2;
 
     ThisThread::sleep_for(500ms); // waiting for the ESP8266 to wake up.
     
