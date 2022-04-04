@@ -3,6 +3,7 @@
 #include "ESP8266Interface.h"   // included in the OS6
 #include "ntp-client/NTPClient.h"
 #include "MQTTClientMbedOs.h"
+//#include <cstdint>
 //#include <cstdio>
 //#include <cstdlib>
 //#include <ctime>
@@ -194,17 +195,36 @@ int main()
             free(aika);
         }
 
-        int lampuntarve = AmbientLightSensor();
+        time_t timestamp2 = timestamp;
+        char *ptr = ctime(&timestamp2);
+        char *aika2 = (char*)malloc(sizeof(char)*3);
+        memset(aika2, '\0', 3*sizeof(char));
+        memcpy(aika2,ptr+11, 2*sizeof(char));
 
-        if (valosensorilukema == lampuntarve){}
+        int value;
+        char str[20];
+        strcpy(str,aika2);
+        value = atoi(str);
         
-        else {
+        // jos kello enemmän kuin 7 eli toimii vielä 7:59 ja kello vähemmän kuin 22 eli heti kun kello 22 niin valo palaa
+        if(!(int(7) < value)&&!(value < int(18))){
+            //printf("TOIMII\n");
+             int lampuntarve = AmbientLightSensor();
+
+            if (valosensorilukema == lampuntarve){}
+        
+            else {
             valosensorilukema = lampuntarve;
             sprintf(buffer, "%d", lampuntarve);
             printf("Publishing with payload: %d\n", lampuntarve);
             client.publish(MBED_CONF_APP_MQTT_TOPIC, msg);
             
         }
+        } 
+        else {
+            printf("EI OLE UNIAIKAVÄLI ELI VALO EI OLE PÄÄLLÄ\n");
+        }
+        free(aika2);
 
         ThisThread::sleep_for(10000ms);
         
