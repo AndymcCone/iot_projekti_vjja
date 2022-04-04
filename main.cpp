@@ -78,35 +78,32 @@ const char *sec2str(nsapi_security_t sec)
 
 int AmbientLightSensor(){
 
-    int alsScaledI = 0; 
+    int alsScaledI; 
     int payload;
 
     spi.format(8,0);           
     spi.frequency(2000000);
-        // ready to wait the conversion start
-    alsCS.write(1);
-    ThisThread::sleep_for(1ms);
 
-    if (alsScaledI == getALS()){
-        ThisThread::sleep_for(10ms);
-    }
-    else {
-        alsScaledI = getALS(); 
+    alsScaledI = getALS();
+   
+         
+        //tulostus testi, kommentoidaan pois
         printf("Ambient light scaled to LUX =  '%0d' \r\n",alsScaledI);
             
         if (alsScaledI > 30){ 
             printf("Tarpeeksi valoisaa, ei tarvetta yövalolle.\n\n");
             payload = 0;
+            return 0;
             }
         else{
             printf("Hämärää, sytytetään yövalo.\n\n");
             payload = 1;
+            return 1;
             }
     }
-    return payload;
-}
 
- 
+
+
 int main()
 { 
 
@@ -210,7 +207,7 @@ int main()
             
         }
 
-        ThisThread::sleep_for(20000ms);
+        ThisThread::sleep_for(10000ms);
         
     }
 }
