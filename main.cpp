@@ -201,11 +201,14 @@ int main()
         value = atoi(str);
         
         // jos kello enemmän kuin 7 eli toimii vielä 7:59 ja kello vähemmän kuin 22 eli heti kun kello 22 niin valo palaa
-        if((int(7) < value)&&(value <= int(19))){
-             
+        int ensimmainen = 1;
+        if((int(7) < value)&&(value <= int(20))){
             printf("EI OLE UNIAIKAVÄLI ELI VALO EI OLE PÄÄLLÄ\n");
-            publishMessage(0);
-        
+            if (ensimmainen == 1){
+                publishMessage(0);
+            }
+            ensimmainen = 0;
+                   
         } 
         else {
             int lampuntarve = AmbientLightSensor();
@@ -215,7 +218,7 @@ int main()
             valosensorilukema = lampuntarve;
             publishMessage(lampuntarve);
             }
-            
+            ensimmainen = 1;
         }
         free(aika2);
         ThisThread::sleep_for(10000ms);
