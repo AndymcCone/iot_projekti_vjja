@@ -18,6 +18,12 @@ DigitalOut alsCS(A6);        // chip select for sensor SPI communication
 #define ntpAddress "time.mikes.fi"  // The VTT Mikes in Helsinki
 #define ntpPort 123     // Typically 123 for every NTP server
 
+ char buffer[128];
+SocketAddress deviceIP;
+TCPSocket socket;
+SocketAddress MQTTBroker;
+MQTTClient client(&socket);
+
 int getALS()
 {
     char alsByte0 = 0; //8bit data from sensor board, char is the unsigned 8bit
@@ -97,33 +103,7 @@ int AmbientLightSensor(){
             }
 }
 
-int main()
-{ 
-
-//Store device and broker IP 
-    SocketAddress deviceIP;
-    SocketAddress MQTTBroker;
-    TCPSocket socket;
-    MQTTClient client(&socket);
-
-    char buffer[128];
-
-    ThisThread::sleep_for(500ms); // waiting for the ESP8266 to wake up.
-    
-    printf("\r\nConnecting...\r\n");
-    int ret = esp.connect(MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2);
-    if (ret != 0) {
-        printf("\r\nConnection error\r\n");
-        //return -1;
-    }
-
-    printf("Success\n\n");
-    esp.get_ip_address(&deviceIP);
-    printf("IP: %s\n", deviceIP.get_ip_address());
-
-    NTPClient ntp(&esp);
-    ntp.set_server(ntpAddress, ntpPort);
-
+void publishMessage(int viesti){
     esp.gethostbyname(MBED_CONF_APP_MQTT_BROKER_HOSTNAME, &MQTTBroker, NSAPI_IPv4, "esp");
     MQTTBroker.set_port(MBED_CONF_APP_MQTT_BROKER_PORT);
     MQTTPacket_connectData data = MQTTPacket_connectData_initializer;       
@@ -131,9 +111,9 @@ int main()
     data.clientID.cstring = MBED_CONF_APP_MQTT_CLIENT_ID;
     data.username.cstring = MBED_CONF_APP_MQTT_AUTH_METHOD;
     data.password.cstring = MBED_CONF_APP_MQTT_AUTH_TOKEN;
- 
+
     
-    sprintf(buffer, "%d", AmbientLightSensor());
+    sprintf(buffer, "%d", viesti);
                     
     MQTT::Message msg;
     msg.qos = MQTT::QOS0;
@@ -151,6 +131,28 @@ int main()
         socket.connect(MQTTBroker);
         client.connect(data);
     }
+    printf("Publishing with payload: %d\n", viesti);
+    client.publish(MBED_CONF_APP_MQTT_TOPIC, msg);
+}
+
+int main()
+{ 
+
+    ThisThread::sleep_for(500ms); // waiting for the ESP8266 to wake up.
+    
+    printf("\r\nConnecting...\r\n");
+    int ret = esp.connect(MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2);
+    if (ret != 0) {
+        printf("\r\nConnection error\r\n");
+        //return -1;
+    }
+
+    printf("Success\n\n");
+    esp.get_ip_address(&deviceIP);
+    printf("IP: %s\n", deviceIP.get_ip_address());
+
+    NTPClient ntp(&esp);
+    ntp.set_server(ntpAddress, ntpPort);
  
    //Tässtä led näyttö kun ohjelma käynnistyy
     OLED.begin();
@@ -199,9 +201,10 @@ int main()
         value = atoi(str);
         
         // jos kello enemmän kuin 7 eli toimii vielä 7:59 ja kello vähemmän kuin 22 eli heti kun kello 22 niin valo palaa
-        if((int(7) < value)&&(value <= int(18))){
+        if((int(7) < value)&&(value <= int(19))){
              
             printf("EI OLE UNIAIKAVÄLI ELI VALO EI OLE PÄÄLLÄ\n");
+            publishMessage(0);
         
         } 
         else {
@@ -210,16 +213,11 @@ int main()
         
             else {
             valosensorilukema = lampuntarve;
-            sprintf(buffer, "%d", lampuntarve);
-            printf("Publishing with payload: %d\n", lampuntarve);
-            client.publish(MBED_CONF_APP_MQTT_TOPIC, msg);
+            publishMessage(lampuntarve);
             }
             
         }
         free(aika2);
-
-
         ThisThread::sleep_for(10000ms);
-        
     }
 }
