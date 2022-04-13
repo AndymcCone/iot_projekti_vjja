@@ -9,7 +9,7 @@
 L432KC D13 - ALS 4 SCK   
 L432KC D12 - ALS 3 MISO  
 L432KC A6  - ALS 1 CS  
-L432KC GND - ALS 5 GND
+L432KC GND - ALS 5 GND               
 L432KC Vcc - ALS 6 Vcc
 
 ``` Connect L432KC - ESP8266 with lines: ```
