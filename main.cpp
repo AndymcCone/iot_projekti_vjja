@@ -195,19 +195,15 @@ int main()
         memset(aika2, '\0', 3*sizeof(char));
         memcpy(aika2,ptr+11, 2*sizeof(char));
 
-        int value;
+        int tunnit;
         char str[20];
         strcpy(str,aika2);
-        value = atoi(str);
+        tunnit = atoi(str);
         
         // jos kello enemmän kuin 7 eli toimii vielä 7:59 ja kello vähemmän kuin 22 eli heti kun kello 22 niin valo palaa
-        int ensimmainen = 1;
-        if((int(7) < value)&&(value <= int(20))){
-            printf("EI OLE UNIAIKAVÄLI ELI VALO EI OLE PÄÄLLÄ\n");
-            if (ensimmainen == 1){
-                publishMessage(0);
-            }
-            ensimmainen = 0;
+        
+        if((int(7) < tunnit)&&(tunnit <= int(17))){
+            printf("EI OLE UNIAIKAVÄLI ELI YÖVALOA EI SYTYTETÄ\n");
                    
         } 
         else {
@@ -218,7 +214,7 @@ int main()
             valosensorilukema = lampuntarve;
             publishMessage(lampuntarve);
             }
-            ensimmainen = 1;
+            
         }
         free(aika2);
         ThisThread::sleep_for(10000ms);
