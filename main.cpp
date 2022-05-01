@@ -57,48 +57,22 @@ int getALS()
     return (int)alsScaledF; 
 }
 
-// WLAN security
-const char *sec2str(nsapi_security_t sec)
-{
-    switch (sec) {
-        case NSAPI_SECURITY_NONE:
-            return "None";
-        case NSAPI_SECURITY_WEP:
-            return "WEP";
-        case NSAPI_SECURITY_WPA:
-            return "WPA";
-        case NSAPI_SECURITY_WPA2:
-            return "WPA2";
-        case NSAPI_SECURITY_WPA_WPA2:
-            return "WPA/WPA2";
-        case NSAPI_SECURITY_UNKNOWN:
-        default:
-            return "Unknown";
-    }
-}
-
 int AmbientLightSensor(){
 
     int alsScaledI; 
-    int payload;
-
     spi.format(8,0);           
     spi.frequency(2000000);
-
     alsScaledI = getALS();
-   
          
         //tulostus testi, kommentoidaan pois
         printf("Ambient light scaled to LUX =  '%0d' \r\n",alsScaledI);
             
         if (alsScaledI > 30){ 
             printf("Tarpeeksi valoisaa, ei tarvetta yövalolle.\n\n");
-            payload = 0;
             return 0;
             }
         else{
             printf("Hämärää, sytytetään yövalo.\n\n");
-            payload = 1;
             return 1;
             }
 }
@@ -111,7 +85,6 @@ void publishMessage(int viesti){
     data.clientID.cstring = MBED_CONF_APP_MQTT_CLIENT_ID;
     data.username.cstring = MBED_CONF_APP_MQTT_AUTH_METHOD;
     data.password.cstring = MBED_CONF_APP_MQTT_AUTH_TOKEN;
-
     
     sprintf(buffer, "%d", viesti);
                     
@@ -121,11 +94,9 @@ void publishMessage(int viesti){
     msg.dup = false;
     msg.payload = (void*)buffer;
     msg.payloadlen = strlen(buffer);
-    
-    ThisThread::sleep_for(2s);  
                                 
     // Connecting mqtt broker
-    if (client.isConnected() == false){
+    if (!client.isConnected()){
         printf("Connecting %s ...\n", MBED_CONF_APP_MQTT_BROKER_HOSTNAME);
         socket.open(&esp);
         socket.connect(MQTTBroker);
@@ -137,7 +108,6 @@ void publishMessage(int viesti){
 
 int main()
 { 
-
     ThisThread::sleep_for(500ms); // waiting for the ESP8266 to wake up.
     
     printf("\r\nConnecting...\r\n");
@@ -202,19 +172,16 @@ int main()
         
         // jos kello enemmän kuin 7 eli toimii vielä 7:59 ja kello vähemmän kuin 22 eli heti kun kello 22 niin valo palaa
         
-        if((int(7) < tunnit)&&(tunnit <= int(17))){
+        if((7 < tunnit)&&(tunnit <= 20)){
             printf("EI OLE UNIAIKAVÄLI ELI YÖVALOA EI SYTYTETÄ\n");
-                   
         } 
+
         else {
             int lampuntarve = AmbientLightSensor();
-            if (valosensorilukema == lampuntarve){}
-        
-            else {
-            valosensorilukema = lampuntarve;
-            publishMessage(lampuntarve);
+            if (valosensorilukema != lampuntarve){
+                publishMessage(lampuntarve);
             }
-            
+            valosensorilukema = lampuntarve;
         }
         free(aika2);
         ThisThread::sleep_for(10000ms);
