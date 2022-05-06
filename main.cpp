@@ -18,7 +18,7 @@ DigitalOut alsCS(A6);        // chip select for sensor SPI communication
 #define ntpAddress "time.mikes.fi"  // The VTT Mikes in Helsinki
 #define ntpPort 123     // Typically 123 for every NTP server
 
- char buffer[128];
+char buffer[128];
 SocketAddress deviceIP;
 TCPSocket socket;
 SocketAddress MQTTBroker;
